@@ -1,7 +1,9 @@
 class Entity: 
-  def __init__(self, x, y):
+  def __init__(self, x, y, field):
     self.x = x
     self.y = y
+    self.field = field
+    self.field.entities.append(self)
 
   def move(self, direction):
     if direction == "up":
@@ -14,8 +16,8 @@ class Entity:
       self.x += 1
 
 class Monster(Entity):
-  def __init__(self, x, y, name, damage):
-    super().__init__(x, y)
+  def __init__(self, x, y, name, damage, field):
+    super().__init__(x, y, field)
     self.name = name
     self.hp = 10
     self.damage = damage
@@ -52,11 +54,7 @@ class Field:
       print()
 
 field = Field()
-m = Monster(2, 2, "Pino", 10)
-field.entities.append(m)
-field.entities.append( Monster(3, 3, "Pino", 10))
+m = Monster(2, 2, "Pino", 10, field)
+m = Monster(1, 1, "Gino", 10, field)
+field.draw()
 
-field.draw()
-m.move("up")
-print()
-field.draw()
