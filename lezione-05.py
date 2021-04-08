@@ -19,10 +19,10 @@ class Entity:
     elif direction == "right" and self.x < self.field.w - 1:
       futureX += 1
 
-    e = self.field.get_entity_at_coords(futureX, futureY)
-
     if self.x == futureX and self.y == futureY:
       return
+
+    e = self.field.get_entity_at_coords(futureX, futureY)
 
     if e == None:
       self.x = futureX
