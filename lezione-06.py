@@ -1,10 +1,15 @@
 import os
+from random import choice
+
+DIRECTIONS = "up", "down", "left", "right"
+
 class Entity: 
-  def __init__(self, x, y, field):
+  def __init__(self, x, y, field, graphic):
     self.x = x
     self.y = y
     self.field = field
     self.field.entities.append(self)
+    self.graphic = graphic
 
   def move(self, direction):
     futureX = self.x
@@ -33,11 +38,19 @@ class Entity:
   def collide(self, entity):
     pass
 
-class Monster(Entity):
-  def __init__(self, x, y, name, damage, field):
-    super().__init__(x, y, field)
+  def update(self):
+    pass
+
+class Gold(Entity):
+  def __init__(self, x, y, field):
+    super().__init__(x, y, field, "$")
+    self.value = 100
+  
+class Living_Entity(Entity):
+  def __init__(self, x, y, name, hp, damage, field, graphic):
+    super().__init__(x, y, field, graphic)
     self.name = name
-    self.hp = 10
+    self.hp = hp
     self.damage = damage
 
   def info(self):
@@ -54,15 +67,39 @@ class Monster(Entity):
         self.field.entities.remove(enemy)
       else:
         enemy.hp -= self.damage
+
+class Monster(Living_Entity):
+  def __init__(self, x, y, name, damage, field):
+    super().__init__(x, y, name, 10, damage, field, "m")
+
+  def move(self):
+    return super().move(choice(DIRECTIONS))
+
+  def update(self):
+    super().update()
+    self.move()
+
+  def collide(self, entity):
+    if isinstance(entity, Player):
+      self.attack(entity)
+
+class Player(Living_Entity):
+  def __init__(self, x, y, name, damage, field):
+    super().__init__(x, y, name, 20, damage, field, "p")
   
   def collide(self, entity):
-    self.attack(entity)
+    if isinstance(entity, Monster):
+      self.attack(entity)
+    elif isinstance(entity, Gold):
+      self.field.score += entity.value
+      self.field.entities.remove(entity)
 
 class Field:
   def __init__(self):
     self.w = 5
     self.h = 5
     self.entities = []
+    self.score = 0
 
   def get_entity_at_coords(self, x, y):
     for e in self.entities:
@@ -72,20 +109,26 @@ class Field:
     return None
     
   def draw(self):
+    print("score:", self.score)
     for y in range(self.h):
       for x in range(self.w):
         for e in self.entities:
           if x == e.x and y == e.y:
-            print("[x]", end = "")
+            print("[" + e.graphic + "]", end = "")
             break    
         else:
           print("[ ]", end = "")
       print()
+  
+  def update(self):
+    for e in self.entities:
+      e.update()
 
 field = Field()
 m1 = Monster(2, 2, "Pino", 10, field)
 m2 = Monster(1, 1, "Gino", 10, field)
-p = Monster(0, 0, "Player", 4, field)
+g = Gold(3, 3, field)
+p = Player(0, 0, "Player", 4, field)
 
 def clear_screen():
   if os.name == "nt":
@@ -95,6 +138,7 @@ def clear_screen():
     
 clear_screen()
 while True:  
+  field.update()
   field.draw()
 
   command = input("input: ").lower()
