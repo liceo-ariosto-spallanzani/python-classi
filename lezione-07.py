@@ -100,12 +100,12 @@ class Player(Living_Entity):
       self.field.entities.remove(entity)
 
 class Field:
-  def __init__(self, levelNumber):
+  def __init__(self, level_number):
     self.entities = []
     self.score = 0
-    self.levelNumber = levelNumber
+    self.level_number = level_number
   
-    f = open("./level" + str(levelNumber) + ".level", "r")
+    f = open("./level" + str(level_number) + ".level", "r")
     rows = f.read().split("\n")
     f.close()
 
